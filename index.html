@@ -13,52 +13,54 @@
     <div class="app-container">
         
         <section id="login-page" class="page active glass-page">
-            <div class="login-header">
-                <i class="fa-solid fa-xmark close-btn"></i>
-                <span class="close-text">اغلاق</span>
-            </div>
-            <div class="login-logo">
-                <div class="logo-circle">
-                    <i class="fa-solid fa-satellite-dish"></i>
+            <div class="main-content" style="padding-top: 50px;">
+                <div class="login-header">
+                    <i class="fa-solid fa-xmark close-btn"></i>
+                    <span class="close-text">اغلاق</span>
                 </div>
-                <h2>ناين سات</h2>
-            </div>
-            <div class="login-form">
-                <h3 style="text-align: center; margin-bottom: 30px; color: #333;">تسجيل الدخول</h3>
-                
-                <button class="btn-google" onclick="navigateTo('home-page')">
-                    <i class="fa-brands fa-google"></i> الدخول بواسطة جوجل
-                </button>
-                
-                <button class="btn-guest" onclick="navigateTo('home-page')">
-                    <i class="fa-regular fa-user"></i> دخول كزائر
-                </button>
+                <div class="login-logo">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <h2>ناين سات</h2>
+                </div>
+                <div class="login-form">
+                    <h3 style="text-align: center; margin-bottom: 30px; color: #333;">تسجيل الدخول</h3>
+                    
+                    <button class="btn-google" onclick="navigateTo('home-page')">
+                        <i class="fa-brands fa-google"></i> الدخول بواسطة جوجل
+                    </button>
+                    
+                    <button class="btn-guest" onclick="navigateTo('home-page')">
+                        <i class="fa-regular fa-user"></i> دخول كزائر
+                    </button>
+                </div>
             </div>
         </section>
 
         <section id="home-page" class="page glass-page">
-            <header class="top-header glass-element">
-                <div class="logo-small">
-                    <div class="logo-circle-small"><i class="fa-solid fa-satellite-dish"></i></div>
-                </div>
-                <div class="contact-us">تواصل معنا <i class="fa-solid fa-phone-volume"></i></div>
-                <div class="header-icons">
-                    <div class="cart-icon" onclick="navigateTo('cart-page')">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="badge" id="cart-badge-main">0</span>
+            <div class="sticky-top glass-element" style="border-radius: 0 0 20px 20px; border-top: none;">
+                <header class="top-header" style="background:transparent; border:none; box-shadow:none; border-radius:0; margin-bottom:5px;">
+                    <div class="logo-small">
+                        <div class="logo-circle-small"><i class="fa-solid fa-satellite-dish"></i></div>
                     </div>
-                    <i class="fa-regular fa-bell"></i>
-                </div>
-            </header>
+                    <div class="contact-us">تواصل معنا <i class="fa-solid fa-phone-volume"></i></div>
+                    <div class="header-icons">
+                        <div class="cart-icon" onclick="navigateTo('cart-page')">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="badge" id="cart-badge-main">0</span>
+                        </div>
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                </header>
 
-            <div class="main-content">
-                <h2 class="page-title">الرئيسية</h2>
-                
-                <div class="search-bar glass-element">
+                <div class="search-bar glass-element" style="margin: 0 20px 15px 20px;">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="search-input" placeholder="ابحث عن منتج..." oninput="filterProducts()">
                 </div>
+            </div>
 
+            <div class="main-content" style="padding-top: 15px;">
                 <div class="banner">
                     <img id="banner-img" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&h=150" alt="Banner">
                 </div>
@@ -105,9 +107,50 @@
             </nav>
         </section>
 
+        <section id="category-products-page" class="page glass-page">
+            <div class="sticky-top glass-element" style="border-radius: 0 0 20px 20px; border-top: none;">
+                <header class="cart-header" style="background:transparent; border:none; box-shadow:none; border-radius:0; padding-bottom:5px;">
+                    <i class="fa-solid fa-angle-right" onclick="history.back()"></i>
+                    <h2 id="cat-page-title">القسم</h2>
+                    <div class="cart-icon" onclick="navigateTo('cart-page')" style="position: relative; cursor: pointer; font-size: 1.2rem;">
+                        <i class="fa-solid fa-cart-shopping" style="color:var(--text-dark);"></i>
+                        <span class="badge cart-badge-cat" style="position: absolute; top: -8px; right: -8px; background: #ff3b30; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;">0</span>
+                    </div>
+                </header>
+
+                <div class="search-bar glass-element" style="margin: 0 20px 15px 20px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="cat-search-input" placeholder="ابحث عن منتج في القسم..." oninput="filterCategoryProducts()">
+                </div>
+            </div>
+
+            <div class="main-content" style="padding-top: 15px;">
+                <div class="products-grid" id="category-products-container"></div>
+            </div>
+            
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item active" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i>
+                    <span>العروض</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>المفضلة</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i>
+                    <span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
         <section id="offers-page" class="page glass-page">
-            <header class="cart-header glass-element">
-                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+            <header class="cart-header glass-element sticky-top">
+                <i class="fa-solid fa-angle-right" onclick="history.back()"></i>
                 <h2>العروض</h2>
                 <div></div>
             </header>
@@ -131,8 +174,8 @@
         </section>
 
         <section id="favorite-page" class="page glass-page">
-            <header class="cart-header glass-element">
-                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+            <header class="cart-header glass-element sticky-top">
+                <i class="fa-solid fa-angle-right" onclick="history.back()"></i>
                 <h2>المفضلة</h2>
                 <div></div>
             </header>
@@ -156,8 +199,8 @@
         </section>
 
         <section id="account-page" class="page glass-page">
-            <header class="cart-header glass-element">
-                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+            <header class="cart-header glass-element sticky-top">
+                <i class="fa-solid fa-angle-right" onclick="history.back()"></i>
                 <h2>الحساب</h2>
                 <div></div>
             </header>
@@ -182,13 +225,15 @@
         </section>
 
         <section id="cart-page" class="page glass-page">
-            <header class="cart-header glass-element">
-                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+            <header class="cart-header glass-element sticky-top">
+                <i class="fa-solid fa-angle-right" onclick="history.back()"></i>
                 <h2>السلة <span class="cart-count" id="cart-count-title">(0) منتجات</span></h2>
                 <i class="fa-regular fa-trash-can" onclick="clearCart()"></i>
             </header>
 
-            <div class="cart-content" id="cart-items-container"></div>
+            <div class="main-content" style="padding: 0; padding-bottom: 260px;">
+                <div class="cart-content" id="cart-items-container"></div>
+            </div>
 
             <div class="cart-summary glass-element" id="cart-summary-section">
                 <div class="summary-row">
