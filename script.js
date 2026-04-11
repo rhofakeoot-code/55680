@@ -2,21 +2,51 @@
 
 const categories = [
     { name: 'الخضار و الفواكه', image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=200' },
-    { name: 'قصابة - دجاج', image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=200' },
-    { name: 'اجبان', image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=200' },
-    { name: 'اسماك', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?auto=format&fit=crop&w=200' },
-    { name: 'لحوم حمراء', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&w=200' },
+    { name: 'لحوم، دجاج وأسماك', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&w=200' },
     { name: 'البقوليات', image: 'https://images.unsplash.com/photo-1515589654644-18dfb208942b?auto=format&fit=crop&w=200' }
 ];
 
 const products = [
-    { id: 1, name: 'موز درجة اولى', price: 2500, priceText: '2,500 د.ع', image: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=200', desc: 'موز طازج ومغذي جداً، غني بالفيتامينات والمعادن.', inStock: true },
-    { id: 2, name: 'سمك كارب', price: 5500, priceText: '5,500 د.ع', image: 'https://images.unsplash.com/photo-1511994714008-b6d68af09c28?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?auto=format&fit=crop&w=200', desc: 'سمك كارب نهري طازج، مثالي للشوي والقلي.', inStock: false },
-    { id: 3, name: 'طماطم طازجة', price: 3000, priceText: '3,000 د.ع', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=200', desc: 'طماطم حمراء طازجة مقطوفة يومياً، ممتازة للسلطات.', inStock: true },
-    { id: 4, name: 'لحم عجل', price: 8000, priceText: '8,000 د.ع', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=200', desc: 'لحم عجل بلدي ممتاز، خالي من الدهون الزائدة.', inStock: true }
+    { id: 1, name: 'موز درجة اولى', price: 2500, priceText: '2,500 د.ع', image: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=200', desc: 'موز طازج ومغذي جداً، غني بالفيتامينات والمعادن.', inStock: true, category: 'الخضار و الفواكه' },
+    { id: 2, name: 'سمك كارب', price: 5500, priceText: '5,500 د.ع', image: 'https://images.unsplash.com/photo-1511994714008-b6d68af09c28?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?auto=format&fit=crop&w=200', desc: 'سمك كارب نهري طازج، مثالي للشوي والقلي.', inStock: false, category: 'لحوم، دجاج وأسماك' },
+    { id: 3, name: 'طماطم طازجة', price: 3000, priceText: '3,000 د.ع', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=200', desc: 'طماطم حمراء طازجة مقطوفة يومياً، ممتازة للسلطات.', inStock: true, category: 'الخضار و الفواكه' },
+    { id: 4, name: 'لحم عجل', price: 8000, priceText: '8,000 د.ع', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200', image2: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=200', desc: 'لحم عجل بلدي ممتاز، خالي من الدهون الزائدة.', inStock: true, category: 'لحوم، دجاج وأسماك' }
 ];
 
 let cart = [];
+let favorites = [];
+let currentCategoryFilter = null;
+
+function customAlert(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'custom-notification';
+    alertDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message}</span>`;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 600);
+    }, 3000);
+}
+
+function toggleFavorite(id, event) {
+    event.stopPropagation();
+    const index = favorites.indexOf(id);
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(id);
+    }
+    renderProducts();
+    if (currentCategoryFilter) renderCategoryProducts(currentCategoryFilter);
+    renderFavoritesPage();
+}
 
 function renderCategories() {
     const container = document.getElementById('categories-container');
@@ -25,17 +55,40 @@ function renderCategories() {
     categories.forEach(cat => {
         const div = document.createElement('div');
         div.className = 'category-card glass-element';
+        div.onclick = () => openCategoryPage(cat.name);
         div.innerHTML = `<img src="${cat.image}" alt="${cat.name}"><span>${cat.name}</span>`;
         container.appendChild(div);
     });
 }
 
-function renderProducts(filteredProducts = products) {
-    const container = document.getElementById('products-container');
+function openCategoryPage(catName) {
+    currentCategoryFilter = catName;
+    document.getElementById('cat-page-title').innerText = catName;
+    document.getElementById('cat-search-input').value = '';
+    renderCategoryProducts(catName);
+    navigateTo('category-products-page');
+}
+
+function renderCategoryProducts(catName, searchQuery = '') {
+    const container = document.getElementById('category-products-container');
     if(!container) return;
     container.innerHTML = '';
 
-    filteredProducts.forEach(prod => {
+    const filtered = products.filter(p => {
+        const matchCat = p.category === catName;
+        const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+         container.innerHTML = '<p style="text-align:center; width: 100%; color:var(--text-dark); margin-top:20px;">لا توجد منتجات حالياً</p>';
+         return;
+    }
+
+    filtered.forEach(prod => {
+        const isFav = favorites.includes(prod.id);
+        const heartClass = isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart';
+        
         const btnHtml = prod.inStock 
             ? `<button class="btn-add" onclick="event.stopPropagation(); addToCart(${prod.id})">أضف للسلة <i class="fa-solid fa-cart-plus"></i></button>` 
             : `<button class="btn-add disabled" onclick="event.stopPropagation()">نفذت الكمية <i class="fa-solid fa-cart-arrow-down"></i></button>`;
@@ -45,7 +98,44 @@ function renderProducts(filteredProducts = products) {
         div.onclick = () => openModal(prod.id);
         div.innerHTML = `
             <div class="icons-top">
-                <i class="fa-regular fa-heart"></i>
+                <i class="${heartClass}" onclick="toggleFavorite(${prod.id}, event)"></i>
+                <i class="fa-solid fa-percent" style="background:rgba(0,0,0,0.1); border-radius:50%; padding:3px;"></i>
+            </div>
+            <img src="${prod.image}" alt="${prod.name}">
+            <span class="price">${prod.priceText}</span>
+            <h4>${prod.name}</h4>
+            ${btnHtml}
+        `;
+        container.appendChild(div);
+    });
+}
+
+function filterCategoryProducts() {
+    const query = document.getElementById('cat-search-input').value;
+    if (currentCategoryFilter) {
+        renderCategoryProducts(currentCategoryFilter, query);
+    }
+}
+
+function renderProducts(filteredProducts = products) {
+    const container = document.getElementById('products-container');
+    if(!container) return;
+    container.innerHTML = '';
+
+    filteredProducts.forEach(prod => {
+        const isFav = favorites.includes(prod.id);
+        const heartClass = isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart';
+
+        const btnHtml = prod.inStock 
+            ? `<button class="btn-add" onclick="event.stopPropagation(); addToCart(${prod.id})">أضف للسلة <i class="fa-solid fa-cart-plus"></i></button>` 
+            : `<button class="btn-add disabled" onclick="event.stopPropagation()">نفذت الكمية <i class="fa-solid fa-cart-arrow-down"></i></button>`;
+
+        const div = document.createElement('div');
+        div.className = 'product-card glass-element';
+        div.onclick = () => openModal(prod.id);
+        div.innerHTML = `
+            <div class="icons-top">
+                <i class="${heartClass}" onclick="toggleFavorite(${prod.id}, event)"></i>
                 <i class="fa-solid fa-percent" style="background:rgba(0,0,0,0.1); border-radius:50%; padding:3px;"></i>
             </div>
             <img src="${prod.image}" alt="${prod.name}">
@@ -63,6 +153,43 @@ function filterProducts() {
     renderProducts(filtered);
 }
 
+function renderFavoritesPage() {
+    const container = document.querySelector('#favorite-page .main-content');
+    if(!container) return;
+    
+    const favProducts = products.filter(p => favorites.includes(p.id));
+    
+    if(favProducts.length === 0) {
+        container.innerHTML = '<h3 style="color:#333; margin-top:20px; text-align:center;">لا توجد منتجات في المفضلة</h3>';
+        return;
+    }
+
+    let html = '<div class="products-grid">';
+    favProducts.forEach(prod => {
+        const isFav = favorites.includes(prod.id);
+        const heartClass = isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart';
+
+        const btnHtml = prod.inStock 
+            ? `<button class="btn-add" onclick="event.stopPropagation(); addToCart(${prod.id})">أضف للسلة <i class="fa-solid fa-cart-plus"></i></button>` 
+            : `<button class="btn-add disabled" onclick="event.stopPropagation()">نفذت الكمية <i class="fa-solid fa-cart-arrow-down"></i></button>`;
+
+        html += `
+            <div class="product-card glass-element" onclick="openModal(${prod.id})">
+                <div class="icons-top">
+                    <i class="${heartClass}" onclick="toggleFavorite(${prod.id}, event)"></i>
+                    <i class="fa-solid fa-percent" style="background:rgba(0,0,0,0.1); border-radius:50%; padding:3px;"></i>
+                </div>
+                <img src="${prod.image}" alt="${prod.name}">
+                <span class="price">${prod.priceText}</span>
+                <h4>${prod.name}</h4>
+                ${btnHtml}
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
 function navigateTo(pageId) {
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
@@ -73,6 +200,10 @@ function navigateTo(pageId) {
         document.getElementById('cart-summary-section').style.display = 'block';
         document.getElementById('checkout-form-section').style.display = 'none';
         renderCart();
+    }
+    
+    if(pageId === 'favorite-page') {
+        renderFavoritesPage();
     }
 }
 
@@ -87,7 +218,7 @@ function addToCart(productId) {
         cart.push({ ...product, qty: 1 });
     }
     updateCartBadge();
-    alert('تمت إضافة ' + product.name + ' إلى السلة');
+    customAlert('تمت إضافة ' + product.name + ' إلى السلة');
 }
 
 function updateCartBadge() {
@@ -96,6 +227,9 @@ function updateCartBadge() {
     if(badge) badge.innerText = totalItems;
     const titleCount = document.getElementById('cart-count-title');
     if(titleCount) titleCount.innerText = `(${totalItems}) منتجات`;
+    
+    const catBadges = document.querySelectorAll('.cart-badge-cat');
+    catBadges.forEach(b => b.innerText = totalItems);
 }
 
 function renderCart() {
@@ -168,7 +302,7 @@ function updateCartTotals() {
 
 function showCheckoutForm() {
     if(cart.length === 0) {
-        alert("السلة فارغة!");
+        customAlert("السلة فارغة!");
         return;
     }
     document.getElementById('cart-summary-section').style.display = 'none';
@@ -176,7 +310,7 @@ function showCheckoutForm() {
 }
 
 function confirmOrder() {
-    alert('تم تأكيد الطلب بنجاح! شكراً لاستخدامك ناين سات.');
+    customAlert('تم تأكيد الطلب بنجاح! شكراً لاستخدامك ناين سات.');
     clearCart();
     navigateTo('home-page');
 }
@@ -212,7 +346,6 @@ function closeModal() {
     document.getElementById('product-modal').style.display = 'none';
 }
 
-// Banner Slider Logic
 const bannerImages = [
     'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&h=150',
     'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=400&h=150',
@@ -231,7 +364,6 @@ setInterval(() => {
     }
 }, 5000);
 
-// Offers Animation Logic
 const offerSets = [
     [
         'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=400&h=150',
@@ -268,4 +400,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCategories();
     renderProducts();
     updateCartBadge();
+    renderFavoritesPage();
 });
