@@ -18,24 +18,57 @@ body {
     width: 100%;
     max-width: 414px;
     height: 100vh;
+    height: 100dvh; /* تم الإضافة لدعم متصفحات الهاتف الحديثة ومنع تداخل القوائم */
     max-height: 896px;
     background: url('https://images.unsplash.com/photo-1604719312566-8fa246131c11?q=80&w=1000&auto=format&fit=crop') center/cover;
     position: relative;
     overflow: hidden;
     box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    border-radius: 10px;
+}
+
+@media (min-width: 415px) {
+    .app-container {
+        border-radius: 10px;
+    }
 }
 
 .page {
     display: none;
     height: 100%;
     width: 100%;
-    overflow-y: auto;
-    padding-bottom: 70px;
+    position: absolute;
+    top: 0; 
+    left: 0;
+    background-color: transparent;
 }
 
 .page.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+}
+
+.sticky-top {
+    flex-shrink: 0;
+    z-index: 50;
+    width: 100%;
+}
+
+.main-content { 
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px 20px; /* تم تعديل الحشوة السفلية */
+}
+
+.bottom-nav {
+    flex-shrink: 0; /* تم الإضافة لثبات الشريط في الأسفل */
+    margin-top: auto; /* لضمان دفع الشريط للأسفل دائماً */
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 20px 20px 0 0;
+    z-index: 100;
 }
 
 :root {
@@ -61,16 +94,11 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 }
 
-#login-page {
-    padding: 20px;
-}
-
 .login-header {
     display: flex;
     align-items: center;
     color: var(--text-dark);
     font-weight: 500;
-    padding-top: 10px;
 }
 .login-header .close-btn { margin-left: 5px; color: #ff3b30; cursor: pointer; }
 .login-logo {
@@ -105,7 +133,6 @@ body {
     font-size: 2rem;
     text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
-.login-form { padding: 0 10px; }
 .btn-google {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.8);
@@ -145,8 +172,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    border-radius: 0 0 20px 20px;
-    margin-bottom: 15px;
 }
 .contact-us {
     display: flex;
@@ -172,7 +197,7 @@ body {
     padding: 2px 6px;
     border-radius: 50%;
 }
-.main-content { padding: 0 20px; }
+
 .page-title {
     font-size: 1.5rem;
     margin: 10px 0;
@@ -184,7 +209,6 @@ body {
     align-items: center;
     border-radius: 12px;
     padding: 12px 15px;
-    margin-bottom: 15px;
 }
 .search-bar i { color: var(--text-dark); margin-left: 10px; }
 .search-bar input {
@@ -257,7 +281,10 @@ body {
 }
 .category-card {
     text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
+.category-card:hover { transform: scale(1.05); }
 .category-card img {
     width: 100%;
     height: 90px;
@@ -282,37 +309,29 @@ body {
 }
 .product-card {
     border-radius: 16px;
-    padding: 12px;
     text-align: center;
     position: relative;
     transition: transform 0.3s ease;
     cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .product-card:hover {
     transform: translateY(-3px);
 }
-.product-card .icons-top {
-    display: flex;
-    justify-content: space-between;
-    position: absolute;
-    top: 12px;
-    width: calc(100% - 24px);
-    color: var(--text-dark);
-    z-index: 2;
-}
-.product-card img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-top: 15px;
-    margin-bottom: 5px;
+.product-info {
+    padding: 10px;
+    text-align: center;
 }
 .product-card .price {
     font-weight: bold;
     color: var(--primary-color);
     display: block;
     font-size: 1.1rem;
+    margin-bottom: 5px;
 }
 .product-card h4 {
     font-size: 0.9rem;
@@ -334,16 +353,6 @@ body {
 }
 .btn-add.disabled { background: #999; cursor: not-allowed; }
 
-.bottom-nav {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-radius: 20px 20px 0 0;
-    z-index: 10;
-}
 .nav-item {
     text-align: center;
     color: var(--text-dark);
@@ -431,10 +440,11 @@ body {
 
 .cart-summary, .checkout-form {
     position: absolute;
-    bottom: 60px;
+    bottom: 70px;
     width: 100%;
     padding: 20px;
     border-radius: 20px 20px 0 0;
+    z-index: 50;
 }
 .summary-row {
     display: flex;
@@ -491,7 +501,7 @@ body {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.6);
-    z-index: 100;
+    z-index: 200;
     display: none;
     justify-content: center;
     align-items: center;
