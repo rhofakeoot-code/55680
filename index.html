@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق ناين سات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div class="app-container">
+        
+        <section id="login-page" class="page active glass-page">
+            <div class="login-header">
+                <i class="fa-solid fa-xmark close-btn"></i>
+                <span class="close-text">اغلاق</span>
+            </div>
+            <div class="login-logo">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <h2>ناين سات</h2>
+            </div>
+            <div class="login-form">
+                <h3 style="text-align: center; margin-bottom: 30px; color: #333;">تسجيل الدخول</h3>
+                
+                <button class="btn-google" onclick="navigateTo('home-page')">
+                    <i class="fa-brands fa-google"></i> الدخول بواسطة جوجل
+                </button>
+                
+                <button class="btn-guest" onclick="navigateTo('home-page')">
+                    <i class="fa-regular fa-user"></i> دخول كزائر
+                </button>
+            </div>
+        </section>
+
+        <section id="home-page" class="page glass-page">
+            <header class="top-header glass-element">
+                <div class="logo-small">
+                    <div class="logo-circle-small"><i class="fa-solid fa-satellite-dish"></i></div>
+                </div>
+                <div class="contact-us">تواصل معنا <i class="fa-solid fa-phone-volume"></i></div>
+                <div class="header-icons">
+                    <div class="cart-icon" onclick="navigateTo('cart-page')">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="badge" id="cart-badge-main">0</span>
+                    </div>
+                    <i class="fa-regular fa-bell"></i>
+                </div>
+            </header>
+
+            <div class="main-content">
+                <h2 class="page-title">الرئيسية</h2>
+                
+                <div class="search-bar glass-element">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="ابحث عن منتج..." oninput="filterProducts()">
+                </div>
+
+                <div class="banner">
+                    <img id="banner-img" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&h=150" alt="Banner">
+                </div>
+
+                <div class="section-header">
+                    <h3>العروض</h3>
+                    <span class="more" onclick="navigateTo('offers-page')">المزيد <i class="fa-solid fa-angle-left"></i></span>
+                </div>
+                <div class="offers-grid">
+                    <img id="offer-img-1" class="offer-card" src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=400&h=150" alt="عرض">
+                    <img id="offer-img-2" class="offer-card" src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=400&h=150" alt="عرض">
+                </div>
+
+                <div class="section-header mt-20">
+                    <h3>الأقسام</h3>
+                    <span class="more">المزيد <i class="fa-solid fa-angle-left"></i></span>
+                </div>
+                <div class="categories-grid" id="categories-container"></div>
+
+                <div class="section-header mt-20">
+                    <h3>المنتجات</h3>
+                    <span class="more">المزيد <i class="fa-solid fa-angle-left"></i></span>
+                </div>
+                <div class="products-grid" id="products-container"></div>
+            </div>
+            
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item active" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i>
+                    <span>العروض</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>المفضلة</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i>
+                    <span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <section id="offers-page" class="page glass-page">
+            <header class="cart-header glass-element">
+                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+                <h2>العروض</h2>
+                <div></div>
+            </header>
+            <div class="main-content" style="padding-top:20px; text-align:center;">
+                <h3 style="color:#333;">صفحة العروض والتخفيضات</h3>
+            </div>
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i><span>الرئيسية</span>
+                </div>
+                <div class="nav-item active" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i><span>العروض</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i><span>المفضلة</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i><span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <section id="favorite-page" class="page glass-page">
+            <header class="cart-header glass-element">
+                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+                <h2>المفضلة</h2>
+                <div></div>
+            </header>
+            <div class="main-content" style="padding-top:20px; text-align:center;">
+                <h3 style="color:#333;">لا توجد منتجات في المفضلة</h3>
+            </div>
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i><span>الرئيسية</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i><span>العروض</span>
+                </div>
+                <div class="nav-item active" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i><span>المفضلة</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i><span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <section id="account-page" class="page glass-page">
+            <header class="cart-header glass-element">
+                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+                <h2>الحساب</h2>
+                <div></div>
+            </header>
+            <div class="main-content" style="padding-top:20px; text-align:center;">
+                <div class="logo-circle" style="margin: 0 auto 20px auto;"><i class="fa-regular fa-user" style="font-size:40px;"></i></div>
+                <h3 style="color:#333;">حساب المستخدم</h3>
+            </div>
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i><span>الرئيسية</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i><span>العروض</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i><span>المفضلة</span>
+                </div>
+                <div class="nav-item active" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i><span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <section id="cart-page" class="page glass-page">
+            <header class="cart-header glass-element">
+                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+                <h2>السلة <span class="cart-count" id="cart-count-title">(0) منتجات</span></h2>
+                <i class="fa-regular fa-trash-can" onclick="clearCart()"></i>
+            </header>
+
+            <div class="cart-content" id="cart-items-container"></div>
+
+            <div class="cart-summary glass-element" id="cart-summary-section">
+                <div class="summary-row">
+                    <span>الطلبات</span>
+                    <span id="summary-subtotal">0 د.ع</span>
+                </div>
+                <div class="summary-row">
+                    <span>الخصم</span>
+                    <span>0 د.ع</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>الإجمالي</span>
+                    <span class="green-text" id="final-total">0 د.ع</span>
+                </div>
+                <button class="btn-primary" onclick="showCheckoutForm()">الدفع <i class="fa-solid fa-money-bill-1-wave"></i></button>
+            </div>
+
+            <div class="checkout-form glass-element" id="checkout-form-section" style="display: none;">
+                <h3>معلومات التوصيل</h3>
+                <input type="text" placeholder="الاسم الكامل" class="checkout-input glass-element">
+                <input type="tel" placeholder="رقم الهاتف" class="checkout-input glass-element">
+                <input type="text" placeholder="العنوان بالتفصيل" class="checkout-input glass-element">
+                <button class="btn-primary" onclick="confirmOrder()">تأكيد الطلب <i class="fa-solid fa-check"></i></button>
+            </div>
+            
+            <nav class="bottom-nav glass-element">
+                <div class="nav-item" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i><span>الرئيسية</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('offers-page')">
+                    <i class="fa-solid fa-percent"></i><span>العروض</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('favorite-page')">
+                    <i class="fa-regular fa-heart"></i><span>المفضلة</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('account-page')">
+                    <i class="fa-regular fa-user"></i><span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <div id="product-modal" class="modal-overlay">
+            <div class="modal-content glass-element">
+                <i class="fa-solid fa-xmark modal-close" onclick="closeModal()"></i>
+                <div class="modal-images">
+                    <img id="modal-img-1" src="" alt="صورة 1">
+                    <img id="modal-img-2" src="" alt="صورة 2">
+                </div>
+                <h2 id="modal-title">اسم المنتج</h2>
+                <span class="modal-price" id="modal-price">0 د.ع</span>
+                <p id="modal-desc" class="modal-desc">وصف المنتج هنا...</p>
+                <button id="modal-add-btn" class="btn-primary" onclick="">أضف للسلة <i class="fa-solid fa-cart-plus"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
