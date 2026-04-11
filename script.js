@@ -1,22 +1,21 @@
 // ملف script.js
 
-// بيانات الأقسام (صور تجريبية)
 const categories = [
-    { name: 'الخضار و الفواكه', image: 'https://dummyimage.com/150x150/fff/000.png&text=Fruits' },
-    { name: 'قصابة - دجاج', image: 'https://dummyimage.com/150x150/fff/000.png&text=Chicken' },
-    { name: 'اجبان', image: 'https://dummyimage.com/150x150/fff/000.png&text=Cheese' },
-    { name: 'اسماك', image: 'https://dummyimage.com/150x150/fff/000.png&text=Fish' },
-    { name: 'لحوم حمراء', image: 'https://dummyimage.com/150x150/fff/000.png&text=Meat' },
-    { name: 'البقوليات', image: 'https://dummyimage.com/150x150/fff/000.png&text=Beans' }
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=الخضار+و+الفواكه' },
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=قصابة+-+دجاج' },
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=اجبان' },
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=اسماك' },
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=لحوم+حمراء' },
+    { image: 'https://dummyimage.com/200x150/e8f5e9/333.png&text=البقوليات' }
 ];
 
-// بيانات المنتجات (صور تجريبية)
 const products = [
-    { name: 'موز درجة اولى', price: '2,500 د.ع', image: 'https://dummyimage.com/150x150/fff/000.png&text=Banana', inStock: true },
-    { name: 'سمك كارب', price: '5,500 د.ع', image: 'https://dummyimage.com/150x150/fff/000.png&text=Fish', inStock: false }
+    { price: '2,500 د.ع', image: 'https://dummyimage.com/200x200/fff/000.png&text=موز+درجة+اولى', inStock: true },
+    { price: '5,500 د.ع', image: 'https://dummyimage.com/200x200/fff/000.png&text=سمك+كارب', inStock: false },
+    { price: '3,000 د.ع', image: 'https://dummyimage.com/200x200/fff/000.png&text=طماطم+طازجة', inStock: true },
+    { price: '8,000 د.ع', image: 'https://dummyimage.com/200x200/fff/000.png&text=لحم+عجل', inStock: true }
 ];
 
-// دالة لتوليد الأقسام في الصفحة
 function renderCategories() {
     const container = document.getElementById('categories-container');
     if(!container) return;
@@ -24,15 +23,11 @@ function renderCategories() {
     categories.forEach(cat => {
         const div = document.createElement('div');
         div.className = 'category-card';
-        div.innerHTML = `
-            <img src="${cat.image}" alt="${cat.name}">
-            <span>${cat.name}</span>
-        `;
+        div.innerHTML = `<img src="${cat.image}" alt="Category">`;
         container.appendChild(div);
     });
 }
 
-// دالة لتوليد المنتجات في الصفحة
 function renderProducts() {
     const container = document.getElementById('products-container');
     if(!container) return;
@@ -49,8 +44,7 @@ function renderProducts() {
                 <i class="fa-regular fa-heart"></i>
                 <i class="fa-solid fa-percent" style="background:#eee; border-radius:50%; padding:3px;"></i>
             </div>
-            <img src="${prod.image}" alt="${prod.name}">
-            <h4>${prod.name}</h4>
+            <img src="${prod.image}" alt="Product">
             <span class="price">${prod.price}</span>
             ${btnHtml}
         `;
@@ -58,39 +52,70 @@ function renderProducts() {
     });
 }
 
-// دالة للتنقل بين الصفحات
 function navigateTo(pageId) {
-    // إخفاء جميع الصفحات
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
-    // إظهار الصفحة المطلوبة
     document.getElementById(pageId).classList.add('active');
+    
+    if(pageId === 'cart-page') {
+        document.getElementById('cart-summary-section').style.display = 'block';
+        document.getElementById('checkout-form-section').style.display = 'none';
+    }
 }
 
-// دالة لتحديث كمية السلة
 let currentQty = 1;
 const pricePerItem = 9000;
+let cartHasItems = true;
 
 function updateQty(change) {
+    if(!cartHasItems) return;
     const newQty = currentQty + change;
     if (newQty >= 1) {
         currentQty = newQty;
         document.getElementById('item-qty').innerText = currentQty;
         
-        // تحديث السعر
         const total = currentQty * pricePerItem;
         const formattedTotal = total.toLocaleString('en-US') + ' د.ع';
         
         document.getElementById('item-total-price').innerText = formattedTotal;
         document.getElementById('final-total').innerText = formattedTotal;
-        
-        // تحديث ملخص الطلبات
-        document.querySelectorAll('.summary-row')[0].lastElementChild.innerText = formattedTotal;
+        document.getElementById('summary-subtotal').innerText = formattedTotal;
     }
 }
 
-// تشغيل الدوال عند تحميل الصفحة
+function removeSingleItem() {
+    const item = document.getElementById('single-cart-item');
+    if(item) {
+        item.remove();
+        emptyCartData();
+    }
+}
+
+function clearCart() {
+    const container = document.getElementById('cart-items-container');
+    if(container) {
+        container.innerHTML = '';
+        emptyCartData();
+    }
+}
+
+function emptyCartData() {
+    cartHasItems = false;
+    document.getElementById('final-total').innerText = '0 د.ع';
+    document.getElementById('summary-subtotal').innerText = '0 د.ع';
+    document.getElementById('cart-count-title').innerText = '(0) منتجات';
+}
+
+function showCheckoutForm() {
+    if(!cartHasItems) {
+        alert("السلة فارغة!");
+        return;
+    }
+    document.getElementById('cart-summary-section').style.display = 'none';
+    document.getElementById('checkout-form-section').style.display = 'block';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     renderCategories();
     renderProducts();
