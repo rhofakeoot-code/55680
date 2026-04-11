@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق نعناع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div class="app-container">
+        
+        <section id="login-page" class="page active">
+            <div class="login-header">
+                <i class="fa-solid fa-xmark close-btn"></i>
+                <span class="close-text">اغلاق</span>
+            </div>
+            <div class="login-logo">
+                <img src="https://dummyimage.com/150x150/7CB342/fff.png&text=Logo" alt="النعناع">
+                <h2>النعناع</h2>
+            </div>
+            <div class="login-form">
+                <h3>تسجيل الدخول</h3>
+                <div class="input-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" placeholder="رقم الهاتف">
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="كلمة السر">
+                </div>
+                <div class="forgot-password">نسيت كلمة السر</div>
+                <button class="btn-primary" onclick="navigateTo('home-page')">الدخول <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+                <div class="create-account">
+                    <p>ليس لديك حساب؟</p>
+                    <a href="#">أنشئ حساب</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-page" class="page">
+            <header class="top-header">
+                <div class="logo-small">
+                    <img src="https://dummyimage.com/50x50/7CB342/fff.png&text=Logo" alt="النعناع">
+                </div>
+                <div class="contact-us">تواصل معنا <i class="fa-solid fa-phone-volume"></i></div>
+                <div class="header-icons">
+                    <div class="cart-icon" onclick="navigateTo('cart-page')">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="badge">1</span>
+                    </div>
+                    <i class="fa-regular fa-bell"></i>
+                </div>
+            </header>
+
+            <div class="main-content">
+                <h2 class="page-title">الرئيسية</h2>
+                
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="ابحث عن منتج...">
+                </div>
+
+                <div class="banner">
+                    <img src="https://dummyimage.com/400x150/7CB342/fff.png&text=Banner" alt="Banner">
+                </div>
+
+                <div class="section-header">
+                    <h3>الأقسام</h3>
+                    <span class="more">المزيد <i class="fa-solid fa-angle-left"></i></span>
+                </div>
+                <div class="categories-grid" id="categories-container">
+                    </div>
+
+                <div class="section-header mt-20">
+                    <h3>التخفيضات</h3>
+                    <span class="more">المزيد <i class="fa-solid fa-angle-left"></i></span>
+                </div>
+                <div class="products-grid" id="products-container">
+                    </div>
+            </div>
+
+            <nav class="bottom-nav">
+                <div class="nav-item active" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-percent"></i>
+                    <span>التخفيضات</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>المفضلة</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-user"></i>
+                    <span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+        <section id="cart-page" class="page">
+            <header class="cart-header">
+                <i class="fa-solid fa-angle-right" onclick="navigateTo('home-page')"></i>
+                <h2>السلة <span class="cart-count">(1) منتجات</span></h2>
+                <i class="fa-regular fa-trash-can"></i>
+            </header>
+
+            <div class="cart-content">
+                <div class="cart-item">
+                    <img src="https://dummyimage.com/80x80/eee/000.png&text=Product" alt="Product">
+                    <div class="item-details">
+                        <h4>الخبز الصحي 365 خالي من الغلوتين 170غم</h4>
+                        <div class="item-price-row">
+                            <span class="price">9,000 د.ع</span>
+                            <div class="quantity-control">
+                                <i class="fa-solid fa-minus qty-btn" onclick="updateQty(-1)"></i>
+                                <span id="item-qty">1</span>
+                                <i class="fa-solid fa-plus qty-btn" onclick="updateQty(1)"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fa-regular fa-trash-can delete-item"></i>
+                    <div class="item-total">اجمالي المنتج <span id="item-total-price">9,000 د.ع</span></div>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>الطلبات</span>
+                    <span>9,000 د.ع</span>
+                </div>
+                <div class="summary-row">
+                    <span>الخصم</span>
+                    <span>0 د.ع</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>الإجمالي</span>
+                    <span class="green-text" id="final-total">9,000 د.ع</span>
+                </div>
+                <button class="btn-primary">الدفع <i class="fa-solid fa-money-bill-1-wave"></i></button>
+            </div>
+            
+            <nav class="bottom-nav">
+                <div class="nav-item" onclick="navigateTo('home-page')">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-percent"></i>
+                    <span>التخفيضات</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>المفضلة</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-user"></i>
+                    <span>الحساب</span>
+                </div>
+            </nav>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
