@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 const CONFIG = {
   FIREBASE_CONFIG: {
@@ -84,6 +84,7 @@ async function fetchProductsFromDB() {
     products.length = 0;
     snapshot.forEach(docSnap => products.push({ id: docSnap.id, ...docSnap.data() }));
     renderProducts();
+    renderDiscountedProducts();
 }
 
 async function fetchBannersFromDB() {
@@ -187,10 +188,18 @@ function renderCategoryProducts(catName, searchQuery = '') {
         const div = document.createElement('div');
         div.className = 'product-card glass-element';
         div.onclick = () => openModal(prod.id);
+        
+        let priceHtml = '';
+        if (prod.hasDiscount) {
+            priceHtml = `<span class="old-price">${prod.originalPrice} د.ع</span><span class="price">${prod.price} د.ع</span>`;
+        } else {
+            priceHtml = `<span class="price">${prod.price} د.ع</span>`;
+        }
+
         div.innerHTML = `
             <div class="icons-top"><i class="${isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart'}" onclick="toggleFavorite('${prod.id}', event)"></i></div>
             <img src="${prod.image || ''}">
-            <span class="price">${prod.price} د.ع</span>
+            ${priceHtml}
             <h4>${prod.name}</h4>
             <button class="btn-add" onclick="event.stopPropagation(); addToCart('${prod.id}')">أضف للسلة</button>
         `;
@@ -212,9 +221,45 @@ function renderProducts(filteredProducts = products) {
         const div = document.createElement('div');
         div.className = 'product-card glass-element';
         div.onclick = () => openModal(prod.id);
+
+        let priceHtml = '';
+        if (prod.hasDiscount) {
+            priceHtml = `<span class="old-price">${prod.originalPrice} د.ع</span><span class="price">${prod.price} د.ع</span>`;
+        } else {
+            priceHtml = `<span class="price">${prod.price} د.ع</span>`;
+        }
+
         div.innerHTML = `
             <div class="icons-top"><i class="${isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart'}" onclick="toggleFavorite('${prod.id}', event)"></i></div>
             <img src="${prod.image || ''}">
+            ${priceHtml}
+            <h4>${prod.name}</h4>
+            <button class="btn-add" onclick="event.stopPropagation(); addToCart('${prod.id}')">أضف للسلة</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function renderDiscountedProducts() {
+    const container = document.getElementById('discounted-products-container');
+    if(!container) return;
+    container.innerHTML = '';
+    const discountedProducts = products.filter(p => p.hasDiscount);
+    
+    if(discountedProducts.length === 0) { 
+        container.innerHTML = '<p style="text-align:center; width: 100%;">لا توجد عروض حالياً</p>'; 
+        return; 
+    }
+
+    discountedProducts.forEach(prod => {
+        const isFav = favorites.includes(prod.id);
+        const div = document.createElement('div');
+        div.className = 'product-card glass-element';
+        div.onclick = () => openModal(prod.id);
+        div.innerHTML = `
+            <div class="icons-top"><i class="${isFav ? 'fa-solid fa-heart favorite-active' : 'fa-regular fa-heart'}" onclick="toggleFavorite('${prod.id}', event)"></i></div>
+            <img src="${prod.image || ''}">
+            <span class="old-price">${prod.originalPrice} د.ع</span>
             <span class="price">${prod.price} د.ع</span>
             <h4>${prod.name}</h4>
             <button class="btn-add" onclick="event.stopPropagation(); addToCart('${prod.id}')">أضف للسلة</button>
@@ -235,7 +280,8 @@ function renderFavoritesPage() {
     if(favProducts.length === 0) { container.innerHTML = '<h3 style="margin-top:20px;">لا توجد مفضلة</h3>'; return; }
     let html = '<div class="products-grid">';
     favProducts.forEach(prod => {
-        html += `<div class="product-card glass-element" onclick="openModal('${prod.id}')"><img src="${prod.image || ''}"><span class="price">${prod.price} د.ع</span><h4>${prod.name}</h4><button class="btn-add" onclick="event.stopPropagation(); addToCart('${prod.id}')">أضف للسلة</button></div>`;
+        let priceHtml = prod.hasDiscount ? `<span class="old-price">${prod.originalPrice} د.ع</span><span class="price">${prod.price} د.ع</span>` : `<span class="price">${prod.price} د.ع</span>`;
+        html += `<div class="product-card glass-element" onclick="openModal('${prod.id}')"><img src="${prod.image || ''}">${priceHtml}<h4>${prod.name}</h4><button class="btn-add" onclick="event.stopPropagation(); addToCart('${prod.id}')">أضف للسلة</button></div>`;
     });
     container.innerHTML = html + '</div>';
 }
@@ -268,7 +314,15 @@ function renderCart() {
     cart.forEach(item => {
         const div = document.createElement('div');
         div.className = 'cart-item glass-element';
-        div.innerHTML = `<img src="${item.image}"><div class="item-details"><h4>${item.name}</h4><div class="item-price-row"><span class="price">${item.price} د.ع</span><div class="quantity-control"><i class="fa-solid fa-minus qty-btn" onclick="updateItemQty('${item.id}', -1)"></i><span>${item.qty}</span><i class="fa-solid fa-plus qty-btn" onclick="updateItemQty('${item.id}', 1)"></i></div></div></div><i class="fa-regular fa-trash-can delete-item" onclick="removeItem('${item.id}')"></i>`;
+        
+        let priceRow = '';
+        if (item.hasDiscount) {
+            priceRow = `<span class="old-price">${item.originalPrice} د.ع</span><span class="price">${item.price} د.ع</span>`;
+        } else {
+            priceRow = `<span class="price">${item.price} د.ع</span>`;
+        }
+
+        div.innerHTML = `<img src="${item.image}"><div class="item-details"><h4>${item.name}</h4><div class="item-price-row">${priceRow}<div class="quantity-control"><i class="fa-solid fa-minus qty-btn" onclick="updateItemQty('${item.id}', -1)"></i><span>${item.qty}</span><i class="fa-solid fa-plus qty-btn" onclick="updateItemQty('${item.id}', 1)"></i></div></div></div><i class="fa-regular fa-trash-can delete-item" onclick="removeItem('${item.id}')"></i>`;
         container.appendChild(div);
     });
     updateCartTotals();
@@ -283,9 +337,24 @@ function removeItem(id) { cart = cart.filter(i => i.id !== id); renderCart(); up
 function clearCart() { cart = []; renderCart(); updateCartBadge(); }
 
 function updateCartTotals() {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const final = total > 0 ? total + 1000 : 0;
-    document.getElementById('summary-subtotal').innerText = total.toLocaleString() + ' د.ع';
+    let totalOriginal = 0;
+    let totalDiscounted = 0;
+
+    cart.forEach(item => {
+        if(item.hasDiscount) {
+            totalOriginal += (item.originalPrice * item.qty);
+            totalDiscounted += (item.price * item.qty);
+        } else {
+            totalOriginal += (item.price * item.qty);
+            totalDiscounted += (item.price * item.qty);
+        }
+    });
+
+    const discountAmount = totalOriginal - totalDiscounted;
+    const final = totalDiscounted > 0 ? totalDiscounted + 1000 : 0;
+    
+    document.getElementById('summary-subtotal').innerText = totalOriginal.toLocaleString() + ' د.ع';
+    document.getElementById('summary-discount').innerText = discountAmount.toLocaleString() + ' د.ع';
     document.getElementById('final-total').innerText = final.toLocaleString() + ' د.ع';
 }
 
@@ -306,7 +375,16 @@ async function confirmOrder() {
     const name = document.getElementById('checkout-name').value;
     const phone = document.getElementById('checkout-phone').value;
     const address = document.getElementById('checkout-address').value;
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0) + 1000;
+    
+    let totalOriginal = 0;
+    let totalDiscounted = 0;
+    cart.forEach(item => {
+        totalOriginal += (item.hasDiscount ? item.originalPrice : item.price) * item.qty;
+        totalDiscounted += item.price * item.qty;
+    });
+
+    const totalDiscount = totalOriginal - totalDiscounted;
+    const finalTotal = totalDiscounted + 1000;
 
     if(!name || !phone || !address) return customAlert("يرجى إكمال البيانات");
 
@@ -315,8 +393,9 @@ async function confirmOrder() {
     try {
         await addDoc(collection(db, "orders"), {
             name, phone, address,
-            items: cart.map(i => ({id: i.id, name: i.name, image: i.image, qty: i.qty, price: i.price})),
-            total: total,
+            items: cart.map(i => ({id: i.id, name: i.name, image: i.image, qty: i.qty, price: i.price, originalPrice: i.originalPrice || i.price})),
+            total: finalTotal,
+            totalDiscount: totalDiscount,
             status: 'pending',
             createdAt: serverTimestamp()
         });
@@ -337,9 +416,32 @@ async function confirmOrder() {
 function openModal(productId) {
     const product = products.find(p => p.id === productId);
     if(!product) return;
-    document.getElementById('modal-img-1').src = product.image || '';
+
+    const img1 = document.getElementById('modal-img-1');
+    const img2 = document.getElementById('modal-img-2');
+
+    if (product.image1) {
+        img1.src = product.image1;
+        img1.style.display = 'block';
+    } else {
+        img1.style.display = 'none';
+    }
+
+    if (product.image2) {
+        img2.src = product.image2;
+        img2.style.display = 'block';
+    } else {
+        img2.style.display = 'none';
+    }
+
     document.getElementById('modal-title').innerText = product.name;
-    document.getElementById('modal-price').innerText = product.price + ' د.ع';
+    
+    if (product.hasDiscount) {
+        document.getElementById('modal-price').innerHTML = `<span class="modal-old-price">${product.originalPrice} د.ع</span> ${product.price} د.ع`;
+    } else {
+        document.getElementById('modal-price').innerText = product.price + ' د.ع';
+    }
+
     document.getElementById('modal-desc').innerText = product.desc || '';
     document.getElementById('modal-add-btn').onclick = () => { addToCart(product.id); closeModal(); };
     document.getElementById('product-modal').style.display = 'flex';
