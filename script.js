@@ -23,7 +23,6 @@ let cart = [];
 let favorites = [];
 let currentCategoryFilter = null;
 
-// الربط مع HTML
 window.navigateTo = navigateTo;
 window.filterProducts = filterProducts;
 window.filterCategoryProducts = filterCategoryProducts;
@@ -38,7 +37,6 @@ window.removeItem = removeItem;
 window.addToCart = addToCart;
 window.toggleFavorite = toggleFavorite;
 
-// Authentication
 window.loginWithGoogle = async () => {
     try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (error) { customAlert('خطأ: ' + error.message); }
 };
@@ -74,7 +72,6 @@ function toggleFavorite(id, event) {
     renderFavoritesPage();
 }
 
-// جلب الأقسام
 async function fetchCategoriesFromDB() {
     const snapshot = await getDocs(collection(db, "categories"));
     categories.length = 0;
@@ -82,7 +79,6 @@ async function fetchCategoriesFromDB() {
     renderCategories();
 }
 
-// جلب المنتجات
 async function fetchProductsFromDB() {
     const snapshot = await getDocs(collection(db, "products"));
     products.length = 0;
@@ -90,26 +86,74 @@ async function fetchProductsFromDB() {
     renderProducts();
 }
 
-// جلب البنرات (التحكم الكامل من الادمن)
 async function fetchBannersFromDB() {
     const snapshot = await getDocs(collection(db, "banners"));
     const container = document.getElementById('banner-container');
     if(!container) return;
-    container.innerHTML = '';
-    snapshot.forEach(docSnap => {
-        container.innerHTML += `<img src="${docSnap.data().image}" alt="Banner">`;
+    
+    let banners = [];
+    snapshot.forEach(docSnap => banners.push(docSnap.data().image));
+    
+    if(banners.length === 0) return;
+
+    let html = '';
+    banners.forEach((img, index) => {
+        html += `<img src="${img}" alt="Banner" class="banner-slide ${index === 0 ? 'active' : ''}">`;
     });
+    container.innerHTML = html;
+
+    if(banners.length > 1) {
+        let currentIndex = 0;
+        setInterval(() => {
+            const slides = container.querySelectorAll('.banner-slide');
+            slides[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].classList.add('active');
+        }, 5000);
+    }
 }
 
-// جلب العروض (التحكم الكامل من الادمن)
 async function fetchOffersFromDB() {
     const snapshot = await getDocs(collection(db, "offers"));
     const container = document.getElementById('offers-container');
     if(!container) return;
-    container.innerHTML = '';
-    snapshot.forEach(docSnap => {
-        container.innerHTML += `<img class="offer-card" src="${docSnap.data().image}" alt="عرض">`;
-    });
+    
+    let offers = [];
+    snapshot.forEach(docSnap => offers.push(docSnap.data().image));
+    
+    if(offers.length === 0) return;
+
+    container.innerHTML = `
+        <div class="offer-slot offer-top">
+            <img src="${offers[0]}" id="offer-img-top">
+        </div>
+        <div class="offer-slot offer-bottom">
+            <img src="${offers[1] || offers[0]}" id="offer-img-bottom">
+        </div>
+    `;
+
+    if(offers.length > 2) {
+        let idxTop = 0;
+        let idxBottom = 1;
+        setInterval(() => {
+            const imgTop = document.getElementById('offer-img-top');
+            const imgBottom = document.getElementById('offer-img-bottom');
+            
+            imgTop.style.animation = 'slideOutRight 0.5s forwards';
+            imgBottom.style.animation = 'slideOutLeft 0.5s forwards';
+            
+            setTimeout(() => {
+                idxTop = (idxTop + 2) % offers.length;
+                idxBottom = (idxBottom + 2) % offers.length;
+                
+                imgTop.src = offers[idxTop];
+                imgBottom.src = offers[idxBottom] || offers[0];
+                
+                imgTop.style.animation = 'slideInLeft 0.5s forwards';
+                imgBottom.style.animation = 'slideInRight 0.5s forwards';
+            }, 500);
+        }, 4000);
+    }
 }
 
 function renderCategories() {
@@ -214,7 +258,7 @@ function addToCart(productId) {
 
 function updateCartBadge() {
     const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    document.getElementById('cart-badge-main').innerText = count;
+    document.querySelectorAll('.badge').forEach(badge => badge.innerText = count);
 }
 
 function renderCart() {
@@ -258,7 +302,37 @@ function checkPhoneLength() {
     btn.style.pointerEvents = (phone.length >= 10) ? 'auto' : 'none';
 }
 
-function confirmOrder() { customAlert('تم تأكيد الطلب بنجاح!'); clearCart(); navigateTo('home-page'); }
+async function confirmOrder() { 
+    const name = document.getElementById('checkout-name').value;
+    const phone = document.getElementById('checkout-phone').value;
+    const address = document.getElementById('checkout-address').value;
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0) + 1000;
+
+    if(!name || !phone || !address) return customAlert("يرجى إكمال البيانات");
+
+    const btn = document.getElementById('btn-confirm-order');
+    btn.innerText = 'جاري الإرسال...';
+    try {
+        await addDoc(collection(db, "orders"), {
+            name, phone, address,
+            items: cart.map(i => ({id: i.id, name: i.name, image: i.image, qty: i.qty, price: i.price})),
+            total: total,
+            status: 'pending',
+            createdAt: serverTimestamp()
+        });
+        customAlert('تم تأكيد الطلب بنجاح!'); 
+        clearCart(); 
+        document.getElementById('checkout-name').value = '';
+        document.getElementById('checkout-phone').value = '';
+        document.getElementById('checkout-address').value = '';
+        document.getElementById('cart-summary-section').style.display = 'block';
+        document.getElementById('checkout-form-section').style.display = 'none';
+        navigateTo('home-page');
+    } catch(e) {
+        customAlert('حدث خطأ: ' + e.message);
+    }
+    btn.innerHTML = 'تأكيد الطلب <i class="fa-solid fa-check"></i>';
+}
 
 function openModal(productId) {
     const product = products.find(p => p.id === productId);
@@ -276,6 +350,6 @@ function closeModal() { document.getElementById('product-modal').style.display =
 document.addEventListener('DOMContentLoaded', () => {
     fetchCategoriesFromDB();
     fetchProductsFromDB();
-    fetchBannersFromDB(); // تفعيل البنرات من الادمن
-    fetchOffersFromDB();  // تفعيل العروض من الادمن
+    fetchBannersFromDB();
+    fetchOffersFromDB();
 });
