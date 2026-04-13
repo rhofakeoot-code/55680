@@ -1,5 +1,27 @@
 // ملف script.js
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const CONFIG = {
+  IMGBB_API_KEY: "7fa910ddeffb3ce5937e0b4ff50246c8",
+  FIREBASE_CONFIG: {
+    apiKey: "AIzaSyAPiiVfmJdGHje0gittK-7yFTYNTQNY6Fk",
+    authDomain: "basjfk-58536.firebaseapp.com",
+    projectId: "basjfk-58536",
+    storageBucket: "basjfk-58536.firebasestorage.app",
+    messagingSenderId: "662162908373",
+    appId: "1:662162908373:web:b5a789fd0b6ca6964e2e5c"
+  },
+  COLLECTION_NAME: "products"
+};
+
+// Initialize Firebase
+const app = initializeApp(CONFIG.FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 const categories = [
     { name: 'الخضار و الفواكه', image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=200' },
     { name: 'لحوم، دجاج وأسماك', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&w=200' },
@@ -16,6 +38,56 @@ const products = [
 let cart = [];
 let favorites = [];
 let currentCategoryFilter = null;
+
+// إتاحة الدوال للعمل مع ملف HTML عند استخدام type="module"
+window.navigateTo = navigateTo;
+window.filterProducts = filterProducts;
+window.filterCategoryProducts = filterCategoryProducts;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.clearCart = clearCart;
+window.showCheckoutForm = showCheckoutForm;
+window.checkPhoneLength = checkPhoneLength;
+window.confirmOrder = confirmOrder;
+window.updateItemQty = updateItemQty;
+window.removeItem = removeItem;
+window.addToCart = addToCart;
+window.toggleFavorite = toggleFavorite;
+
+// Authentication Functions
+window.loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        customAlert('خطأ في تسجيل الدخول: ' + error.message);
+    }
+};
+
+window.loginAsGuest = async () => {
+    try {
+        await signInAnonymously(auth);
+    } catch (error) {
+        customAlert('خطأ في دخول الزائر: ' + error.message);
+    }
+};
+
+window.logout = async () => {
+    try {
+        await signOut(auth);
+        customAlert('تم تسجيل الخروج');
+    } catch (error) {
+        customAlert('خطأ: ' + error.message);
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        navigateTo('home-page');
+    } else {
+        navigateTo('login-page');
+    }
+});
 
 function customAlert(message) {
     const alertDiv = document.createElement('div');
@@ -205,6 +277,10 @@ function navigateTo(pageId) {
     if(pageId === 'favorite-page') {
         renderFavoritesPage();
     }
+
+    if(pageId === 'account-page') {
+        loadAdminProducts();
+    }
 }
 
 function addToCart(productId) {
@@ -295,9 +371,14 @@ function clearCart() {
 
 function updateCartTotals() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const formattedTotal = total.toLocaleString('en-US') + ' د.ع';
-    document.getElementById('summary-subtotal').innerText = formattedTotal;
-    document.getElementById('final-total').innerText = formattedTotal;
+    const deliveryFee = cart.length > 0 ? 1000 : 0; // تعديل كلفة التوصيل 1000 دينار
+    const finalTotal = total + deliveryFee;
+    
+    document.getElementById('summary-subtotal').innerText = total.toLocaleString('en-US') + ' د.ع';
+    const finalTotalElement = document.getElementById('final-total');
+    if(finalTotalElement) {
+        finalTotalElement.innerText = finalTotal.toLocaleString('en-US') + ' د.ع';
+    }
 }
 
 function showCheckoutForm() {
@@ -362,6 +443,154 @@ function openModal(productId) {
 function closeModal() {
     document.getElementById('product-modal').style.display = 'none';
 }
+
+
+// نظام رفع الصور والمنتجات (الادمن)
+const imgInput = document.getElementById('add-prod-image');
+const imgPreview = document.getElementById('add-prod-preview');
+
+if(imgInput) {
+    imgInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imgPreview.src = e.target.result;
+                imgPreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            imgPreview.style.display = 'none';
+        }
+    });
+}
+
+async function compressImage(file, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                resolve(blob);
+            }, 'image/jpeg', quality);
+        };
+        img.onerror = error => reject(error);
+    });
+}
+
+async function uploadToImgBB(blob) {
+    const formData = new FormData();
+    formData.append('image', blob, 'product.jpg');
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${CONFIG.IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+    });
+    const data = await response.json();
+    if (data.success) {
+        return {
+            url: data.data.url,
+            deleteUrl: data.data.delete_url
+        };
+    } else {
+        throw new Error('فشل رفع الصورة');
+    }
+}
+
+const btnSaveProduct = document.getElementById('btn-save-product');
+if(btnSaveProduct) {
+    btnSaveProduct.addEventListener('click', async () => {
+        const name = document.getElementById('add-prod-name').value;
+        const price = document.getElementById('add-prod-price').value;
+        const file = imgInput.files[0];
+
+        if (!name || !price || !file) {
+            customAlert('يرجى ملء جميع الحقول واختيار صورة');
+            return;
+        }
+
+        btnSaveProduct.innerText = 'جاري الرفع...';
+        btnSaveProduct.style.pointerEvents = 'none';
+
+        try {
+            const compressedBlob = await compressImage(file, 0.7);
+            const imgData = await uploadToImgBB(compressedBlob);
+            
+            await addDoc(collection(db, CONFIG.COLLECTION_NAME), {
+                name: name,
+                price: Number(price),
+                imageUrl: imgData.url,
+                deleteUrl: imgData.deleteUrl,
+                createdAt: serverTimestamp()
+            });
+
+            customAlert('تم إضافة المنتج بنجاح');
+            document.getElementById('add-prod-name').value = '';
+            document.getElementById('add-prod-price').value = '';
+            imgInput.value = '';
+            imgPreview.style.display = 'none';
+            loadAdminProducts(); 
+        } catch (error) {
+            customAlert('خطأ: ' + error.message);
+        } finally {
+            btnSaveProduct.innerHTML = 'حفظ المنتج <i class="fa-solid fa-cloud-arrow-up"></i>';
+            btnSaveProduct.style.pointerEvents = 'auto';
+        }
+    });
+}
+
+async function loadAdminProducts() {
+    const container = document.getElementById('admin-products-list');
+    if(!container) return;
+    container.innerHTML = '<span style="color:#333;">جاري التحميل...</span>';
+    try {
+        const querySnapshot = await getDocs(collection(db, CONFIG.COLLECTION_NAME));
+        container.innerHTML = '';
+        querySnapshot.forEach((docSnap) => {
+            const prod = docSnap.data();
+            const id = docSnap.id;
+            const div = document.createElement('div');
+            div.className = 'glass-element';
+            div.style.padding = '10px';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; color:#333;">
+                    <img src="${prod.imageUrl}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                    <span>${prod.name} - ${prod.price} د.ع</span>
+                </div>
+                <button class="btn-primary" style="width:auto; padding:5px 10px; background:#ff3b30;" onclick="deleteAdminProduct('${id}', '${prod.deleteUrl}')"><i class="fa-solid fa-trash"></i></button>
+            `;
+            container.appendChild(div);
+        });
+    } catch (error) {
+        container.innerHTML = '<span style="color:red;">خطأ في التحميل</span>';
+    }
+}
+
+window.deleteAdminProduct = async (id, deleteUrl) => {
+    if(!confirm('هل أنت متأكد من الحذف؟')) return;
+    try {
+        if (deleteUrl) {
+            try {
+                await fetch(deleteUrl);
+            } catch (e) {
+                console.log('ImgBB Delete Issue:', e);
+            }
+        }
+        await deleteDoc(doc(db, CONFIG.COLLECTION_NAME, id));
+        customAlert('تم حذف المنتج بنجاح');
+        loadAdminProducts();
+    } catch (error) {
+        customAlert('خطأ في الحذف: ' + error.message);
+    }
+};
+
 
 const bannerImages = [
     'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&h=150',
