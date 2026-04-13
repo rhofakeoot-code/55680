@@ -27,11 +27,11 @@
                 <div class="login-form">
                     <h3 style="text-align: center; margin-bottom: 30px; color: #333;">تسجيل الدخول</h3>
                     
-                    <button class="btn-google" onclick="navigateTo('home-page')">
+                    <button class="btn-google" onclick="loginWithGoogle()">
                         <i class="fa-brands fa-google"></i> الدخول بواسطة جوجل
                     </button>
                     
-                    <button class="btn-guest" onclick="navigateTo('home-page')">
+                    <button class="btn-guest" onclick="loginAsGuest()">
                         <i class="fa-regular fa-user"></i> دخول كزائر
                     </button>
                 </div>
@@ -207,6 +207,20 @@
             <div class="main-content" style="padding-top:20px; text-align:center;">
                 <div class="logo-circle" style="margin: 0 auto 20px auto;"><i class="fa-regular fa-user" style="font-size:40px;"></i></div>
                 <h3 style="color:#333;">حساب المستخدم</h3>
+                <button class="btn-guest" style="margin-top:20px;" onclick="logout()">تسجيل الخروج</button>
+                
+                <hr style="margin: 20px 0; border: 1px solid rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom: 15px; color: #333;">لوحة الإدارة المؤقتة (إضافة منتج)</h4>
+                
+                <input type="text" id="add-prod-name" placeholder="اسم المنتج" class="checkout-input glass-element">
+                <input type="number" id="add-prod-price" placeholder="السعر" class="checkout-input glass-element">
+                <input type="file" id="add-prod-image" accept="image/*" class="checkout-input glass-element">
+                <img id="add-prod-preview" style="width: 100%; max-height: 200px; object-fit: contain; display: none; margin-bottom: 15px;">
+                <button id="btn-save-product" class="btn-primary">حفظ المنتج <i class="fa-solid fa-cloud-arrow-up"></i></button>
+
+                <h4 style="margin-top: 20px; color: #333;">المنتجات المضافة عبر الإدارة</h4>
+                <div id="admin-products-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;"></div>
+
             </div>
             <nav class="bottom-nav glass-element">
                 <div class="nav-item" onclick="navigateTo('home-page')">
@@ -243,6 +257,10 @@
                 <div class="summary-row">
                     <span>الخصم</span>
                     <span>0 د.ع</span>
+                </div>
+                <div class="summary-row">
+                    <span>التوصيل</span>
+                    <span id="summary-delivery">1,000 د.ع</span>
                 </div>
                 <div class="summary-row total-row">
                     <span>الإجمالي</span>
@@ -291,6 +309,6 @@
 
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
